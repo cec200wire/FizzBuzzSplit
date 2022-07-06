@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System.ComponentModel.Design;
+using System.Data;
+using System.Diagnostics;
 
 namespace FizzBuzzSplit
 {
@@ -45,36 +47,19 @@ namespace FizzBuzzSplit
             for (int i = min; i <= max; i++)
             {
                 string output = "";
-                if (i % 3 == 0 & ruleActivate[0] == 1)
-                {
-                    output = Rule.fizz(output);
-                }
+                Fizz myFizz = new Fizz();
+                output = myFizz.Apply(output, ruleIndex, ruleActivate, i);
+                Buzz myBuzz = new Buzz();
+                output = myBuzz.Apply(output, ruleIndex, ruleActivate, i);
+                Bang myBang = new Bang();
+                output = myBang.Apply(output, ruleIndex, ruleActivate, i);
+                Bong myBong = new Bong();
+                output = myBong.Apply(output, ruleIndex, ruleActivate, i);
+                Fezz myFezz = new Fezz();
+                output = myFezz.Apply(output, ruleIndex, ruleActivate, i);
+                Reverse myReverse = new Reverse();
+                output = myReverse.Apply(output, ruleIndex, ruleActivate, i);
 
-                if (i % 5 == 0 & ruleActivate[1] == 1)
-                {
-                    output = Rule.buzz(output);
-                }
-
-                if (i % 7 == 0 & ruleActivate[2] == 1)
-                {
-                    output = Rule.bang(output);
-                }
-
-                if (i % 11 == 0 & ruleActivate[3] == 1)
-                {
-                    output = Rule.bong(output);
-                }
-
-                if (i % 13 == 0 & ruleActivate[4] == 1)
-                {
-                    output = Rule.fezz(output);
-                }
-                
-                if (i % 17 == 0 & ruleActivate[5] == 1)
-                {
-                    output = Rule.reverse(output);
-                }
-                
                 if (output == "")
                 {
                     Console.WriteLine(i);
@@ -114,56 +99,117 @@ namespace FizzBuzzSplit
             return n;
         }
     }
-    class Rule
+
+    abstract class Rule
     {
-        public static string fizz(string display)
+        public bool Condition(int divisor, int[] index, int[] active, int n)
         {
-            display += "Fizz";
-            return display;
-        }
-        
-        public static string buzz(string display)
-        {
-            display += "Buzz";
-            return display;
-        }
-        
-        public static string bang(string display)
-        {
-            display += "Bang";
-            return display;
-        }
-        
-        public static string bong(string display)
-        {
-            display = "Bong";
-            return display;
-        }
-        
-        public static string fezz(string display)
-        {
-            string tempFezzDisplay = display;
-            for (int j = 0; j < tempFezzDisplay.Length; j++)
+            int toggle = 0;
+            for (int k = 0; k < index.Length; k++)
             {
-                if (tempFezzDisplay[j] == 'B')
+                if (index[k] == divisor)
                 {
-                    display = tempFezzDisplay.Substring(0,j) + "Fezz" + tempFezzDisplay.Substring(j);
+                    if (active[k] == 1)
+                    {
+                        toggle += 1;
+                    }
                 }
             }
-            if (display == tempFezzDisplay)
+
+            if (n % divisor == 0)
             {
-                display += "Fezz";
+                toggle += 1;
+            }
+
+            return (toggle == 2);
+        }
+        public abstract string Apply(string display, int[] index, int[] active, int n);
+    }
+
+    class Fizz : Rule
+    {
+        public override string Apply(string display, int[] index, int[] active, int n)
+        {
+            if (Condition(3, index, active, n))
+            {
+                display += "Fizz";
             }
             return display;
         }
-        
-        public static string reverse(string display)
+    }
+
+    class Buzz : Rule
+    {
+        public override string Apply(string display, int[] index, int[] active, int n)
         {
-            string tempRevDisplay = display;
-            display = "";
-            for (int k = tempRevDisplay.Length; k > 0; k -= 4)
+            if (Condition(5, index, active, n))
             {
-                display += tempRevDisplay.Substring(k - 4, 4);
+                display += "Buzz";
+            }
+            return display;
+        }
+    }
+
+    class Bang : Rule
+    {
+        public override string Apply(string display, int[] index, int[] active, int n)
+        {
+            if (Condition(7, index, active, n))
+            {
+                display += "Bang";
+            }
+            return display;
+        }
+    }
+
+    class Bong : Rule
+    {
+        public override string Apply(string display, int[] index, int[] active, int n)
+        {
+            if (Condition(11, index, active, n))
+            {
+                display = "Bong";
+            }
+            return display;
+        }
+    }
+
+    class Fezz : Rule
+    {
+        public override string Apply(string display, int[] index, int[] active, int n)
+        {
+            if (Condition(13, index, active, n))
+            {
+                string tempFezzDisplay = display;
+                for (int j = 0; j < tempFezzDisplay.Length; j++)
+                {
+                    if (tempFezzDisplay[j] == 'B')
+                    {
+                        display = tempFezzDisplay.Substring(0, j) + "Fezz" + tempFezzDisplay.Substring(j);
+                    }
+                }
+
+                if (display == tempFezzDisplay)
+                {
+                    display += "Fezz";
+                }
+            }
+            return display;
+        }
+    }
+
+    class Reverse : Rule
+    {
+        public override string Apply(string display, int[] index, int[] active, int n)
+        {
+            if (Condition(17, index, active, n))
+            {
+                string tempRevDisplay = display;
+                display = "";
+                for (int k = tempRevDisplay.Length; k > 0; k -= 4)
+                {
+                    display += tempRevDisplay.Substring(k - 4, 4);
+                }
             }
             return display;
         }
